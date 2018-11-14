@@ -12,8 +12,8 @@ const CannonBall = (props) => {
     return (
         <ellipse
             style={ballStyle}
-            x={props.position.x}
-            y={props.position.y}
+            cx={props.position.x}
+            cy={props.position.y}
             rx="16"
             ry="16"
         />

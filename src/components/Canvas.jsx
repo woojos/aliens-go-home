@@ -11,17 +11,29 @@ import Heart from "./Heart";
 import StartGame from "./StartGame";
 import Title from "./Title";
 import {gameHeight} from "../utils/constants";
+import {signIn} from "auth0-web";
+import Leaderboard from "./Leaderboard";
 
 const Canvas = (props) => {
 
     const viewBox = [window.innerWidth / -2, 100 - gameHeight, window.innerWidth, gameHeight];
+
+    const lives = [];
+    for (let i = 0; i < props.gameState.lives; i++) {
+        const hartPosition = {
+            x: -180 -  (i * 70),
+            y: 35
+        };
+        lives.push(<Heart position={hartPosition} key={i}/>);
+    }
+
 
     return (
         <svg
             id="aliens-go-home-canvas"
             preserveAspectRatio="xMaxYMax none"
             onMouseMove={props.trackMouse}
-            onMouseUp={props.fireCannon}
+            onClick={props.shoot}
             viewBox={viewBox}
         >
             <defs>
@@ -32,22 +44,26 @@ const Canvas = (props) => {
 
             <Sky/>
             <Ground/>
+
+            {props.gameState.cannonBalls.map(cannonBall => (
+                <CannonBall position={cannonBall.position} key={cannonBall.id} />
+            ))};
+
             <CannonPipe rotation={props.angle}/>
             <CannonBase/>
-            <CannonBall position={{x:0, y:-100}}/>
             <CurrentScore score={props.gameState.kills}/>
 
             {props.gameState.flyingObjects.map(flyingObject => (
                 <FlyingObject position={flyingObject.position} key={flyingObject.id}/>
             ))}
 
-
-            <Heart position={{x: -300, y: 35}} />
+            {lives}
 
             {!props.gameState.started &&
             <g>
                 <StartGame onClick={props.startGame}/>
                 <Title/>
+                <Leaderboard currentPlayer={props.currentPlayer} authenticate={signIn} leaderboard={props.players} />
             </g>
             }
             
@@ -59,7 +75,7 @@ const Canvas = (props) => {
 Canvas.propTypes = {
     angle: PropTypes.number.isRequired,
     trackMouse: PropTypes.func.isRequired,
-    fireCannon: PropTypes.func.isRequired,
+    shoot: PropTypes.func.isRequired,
     startGame: PropTypes.func.isRequired,
     gameState: PropTypes.shape({
         started: PropTypes.bool.isRequired,
@@ -73,6 +89,23 @@ Canvas.propTypes = {
             id: PropTypes.number.isRequired,
         })).isRequired,
     }).isRequired,
+    currentPlayer: PropTypes.shape({
+        id: PropTypes.string.isRequired,
+        maxScore: PropTypes.number.isRequired,
+        name: PropTypes.string.isRequired,
+        picture: PropTypes.string.isRequired,
+    }),
+    players: PropTypes.arrayOf(PropTypes.shape({
+        id: PropTypes.string.isRequired,
+        maxScore: PropTypes.number.isRequired,
+        name: PropTypes.string.isRequired,
+        picture: PropTypes.string.isRequired,
+    })),
+};
+
+Canvas.defaultProps = {
+    currentPlayer: null,
+    players: null,
 };
 
 export default Canvas;

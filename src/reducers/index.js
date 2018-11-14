@@ -1,6 +1,6 @@
-import {FIRE_CANNON, MOVE_OBJECTS, START_GAME} from '../actions';
+import {LEADERBOARD_LOADED, LOGGED_IN, MOVE_OBJECTS, SHOOT, START_GAME} from '../actions';
 import moveObjects from './moveObjects';
-import fireCannon from './fireCannon';
+import shoot from './shoot';
 import startGame from './startGame';
 
 const initialGameState = {
@@ -9,6 +9,9 @@ const initialGameState = {
     lives: 3,
     flyingObjects: [],
     lastObjectCreatedAt: new Date(),
+    currentPlayer: null,
+    players: null,
+    cannonBalls: [],
 };
 
 
@@ -23,10 +26,20 @@ function reducer(state = initialState, action) {
     switch (action.type) {
         case MOVE_OBJECTS:
             return moveObjects(state, action);
-        case FIRE_CANNON:
-            return fireCannon(state, action);
+        case SHOOT:
+            return shoot(state, action);
         case START_GAME:
             return startGame(state, initialGameState);
+        case LOGGED_IN:
+            return {
+                ...state,
+                currentPlayer:action.player
+            };
+        case LEADERBOARD_LOADED:
+            return {
+                ...state,
+                players:action.players
+            };
         default:
             return state;
     }
